@@ -58,28 +58,42 @@
             font-weight: bold;
             margin-top: 4px;
         }
-        .schedule-card {
+        .tracker-card, .schedule-card {
             background: #161b22;
             border: 1px solid #30363d;
             border-radius: 12px;
             padding: 16px;
+            margin-bottom: 16px;
         }
-        .schedule-card h3 {
+        .tracker-card h3, .schedule-card h3 {
             margin-top: 0;
             font-size: 1rem;
             color: #ffffff;
             border-bottom: 1px solid #30363d;
             padding-bottom: 8px;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+        th, td {
+            text-align: left;
+            padding: 8px 4px;
+            border-bottom: 1px solid #21262d;
+        }
+        th { color: #8b949e; }
+        .tag-buy { color: #3fb950; font-weight: bold; }
+        .tag-sell { color: #f85149; font-weight: bold; }
+        .tag-wait { color: #8b949e; font-weight: bold; }
         ul {
             padding-left: 20px;
             margin: 8px 0;
             font-size: 0.85rem;
             color: #8b949e;
         }
-        li {
-            margin-bottom: 4px;
-        }
+        li { margin-bottom: 4px; }
     </style>
 </head>
 <body>
@@ -92,8 +106,44 @@
         <div class="status-card">
             <div class="details">CURRENT MARKET BIAS</div>
             <div id="signalDisplay" class="signal-box wait">WAIT</div>
-            <div id="priceDisplay" class="price-tag">Price: --</div>
+            <div id="priceDisplay" class="price-tag">Price: Verified via Exness</div>
             <div id="lastUpdated" class="details">Connecting to live feed...</div>
+        </div>
+
+        <!-- Multi-Timeframe Alignment Tracker -->
+        <div class="tracker-card">
+            <h3>Multi-Timeframe Trend Tracker</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>TF</th>
+                        <th>Role</th>
+                        <th>Trend / Bias</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1D</strong></td>
+                        <td>Macro Trend</td>
+                        <td id="tf1d" class="tag-wait">WAIT</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4H</strong></td>
+                        <td>Trend Filter</td>
+                        <td id="tf4h" class="tag-wait">WAIT</td>
+                    </tr>
+                    <tr>
+                        <td><strong>30M</strong></td>
+                        <td>Confirmation</td>
+                        <td id="tf30m" class="tag-wait">WAIT</td>
+                    </tr>
+                    <tr>
+                        <td><strong>15M</strong></td>
+                        <td>Execution Trigger</td>
+                        <td id="tf15m" class="tag-wait">ENTRY ZONE</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <div class="schedule-card">
@@ -113,25 +163,20 @@
     <script>
         async function fetchLatestSignal() {
             try {
-                // Calls the webhook endpoint to get current state or test data
                 const response = await fetch('/api/webhook');
                 const data = await response.json();
                 
                 const signalBox = document.getElementById('signalDisplay');
-                const priceDisplay = document.getElementById('priceDisplay');
                 const lastUpdated = document.getElementById('lastUpdated');
 
-                // Default state handling if waiting
                 signalBox.className = 'signal-box wait';
                 signalBox.innerText = 'WAIT';
-                priceDisplay.innerText = 'Price: Verified via Exness';
                 lastUpdated.innerText = 'Last checked: ' + new Date().toLocaleTimeString();
             } catch (e) {
                 console.error("Error fetching feed:", e);
             }
         }
 
-        // Fetch immediately and refresh every 10 seconds
         fetchLatestSignal();
         setInterval(fetchLatestSignal, 10000);
     </script>
