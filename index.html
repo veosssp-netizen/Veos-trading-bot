@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>US30 Signal Desk</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 480px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        h1 {
+            font-size: 1.5rem;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+        .status-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .signal-box {
+            font-size: 2rem;
+            font-weight: bold;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 12px 0;
+            letter-spacing: 1px;
+        }
+        .wait { background-color: #3b4351; color: #f0f6fc; }
+        .buy-bias { background-color: #238636; color: #ffffff; }
+        .sell-bias { background-color: #da3633; color: #ffffff; }
+        .details {
+            font-size: 0.9rem;
+            color: #8b949e;
+            margin-top: 8px;
+        }
+        .schedule-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .schedule-card h3 {
+            margin-top: 0;
+            font-size: 1rem;
+            color: #ffffff;
+            border-bottom: 1px solid #30363d;
+            padding-bottom: 8px;
+        }
+        ul {
+            padding-left: 20px;
+            margin: 8px 0;
+            font-size: 0.85rem;
+            color: #8b949e;
+        }
+        li {
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>US30 Signal Desk</h1>
+            <div class="details">Exness Price Verification & Bias Engine</div>
+        </header>
+
+        <div class="status-card">
+            <div class="details">CURRENT MARKET BIAS</div>
+            <div id="signalDisplay" class="signal-box wait">WAIT</div>
+            <div id="lastUpdated" class="details">Awaiting TradingView Webhook Feed...</div>
+        </div>
+
+        <div class="schedule-card">
+            <h3>SAST Briefing Times (7 Daily Slots)</h3>
+            <ul>
+                <li>03:00 SAST — Early Asia Session Prep</li>
+                <li>08:00 SAST — London Open Briefing</li>
+                <li>13:30 SAST — US Pre-Market Session</li>
+                <li>15:30 SAST — New York Stock Exchange Open</li>
+                <li>18:00 SAST — Mid-Session Review</li>
+                <li>21:00 SAST — Late Session Check</li>
+                <li>23:30 SAST — Daily Close & Reset</li>
+            </ul>
+        </div>
+    </div>
+</body>
+          </html>
+          
