@@ -1,11 +1,14 @@
-// In-memory state for tracking multi-timeframe alignment
+// Persistent state matching the screenshot technical indicators
 let trackerState = {
-    "1D": "WAIT",
-    "4H": "WAIT",
-    "30M": "WAIT",
-    "15M": "WAIT",
-    overallBias: "WAIT",
-    lastPrice: "N/A",
+    timeframe: "1H",
+    lastPrice: "52713.60",
+    cci: "105.22",
+    macd: "60.6",
+    stochRsi: "84.76",
+    cciStatus: "OVERBOUGHT",      // > 100
+    stochRsiStatus: "OVERBOUGHT", // > 80
+    macdStatus: "BULLISH",        // Positive histogram
+    overallBias: "WAIT",          // Defaults to WAIT unless full alignment occurs
     lastUpdated: new Date().toISOString()
 };
 
@@ -14,48 +17,41 @@ export default function handler(req, res) {
     res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
+    if (req.method === 'OPTIONS') return res.status(200).end();
 
     if (req.method === 'POST') {
         try {
             const data = req.body || {};
             
-            // Expected TradingView Payload:
-            // { "timeframe": "1D", "bias": "BUY", "price": 43500 }
-            const tf = data.timeframe ? data.timeframe.toUpperCase() : null;
-            const bias = data.bias ? data.bias.toUpperCase() : 'WAIT';
-            const price = data.price || trackerState.lastPrice;
+            if (data.price) trackerState.lastPrice = data.price;
+            if (data.cci !== undefined) trackerState.cci = data.cci;
+            if (data.macd !== undefined) trackerState.macd = data.macd;
+            if (data.stochRsi !== undefined) trackerState.stochRsi = data.stochRsi;
+            if (data.timeframe) trackerState.timeframe = data.timeframe.toUpperCase();
 
-            if (tf && ['1D', '4H', '30M', '15M'].includes(tf)) {
-                trackerState[tf] = bias;
-            }
+            // Evaluate indicator threshold conditions
+            const cciVal = parseFloat(trackerState.cci);
+            const stochVal = parseFloat(trackerState.stochRsi);
 
-            if (price) {
-                trackerState.lastPrice = price;
-            }
+            trackerState.cciStatus = cciVal > 100 ? "OVERBOUGHT" : cciVal < -100 ? "OVERSOLD" : "NEUTRAL";
+            trackerState.stochRsiStatus = stochVal > 80 ? "OVERBOUGHT" : stochVal < 20 ? "OVERSOLD" : "NEUTRAL";
 
-            // Calculate Overall Bias (1D + 4H + 30M must all align for 15M execution)
-            if (trackerState["1D"] === "BUY" && trackerState["4H"] === "BUY" && trackerState["30M"] === "BUY") {
-                trackerState.overallBias = "BUY";
-            } else if (trackerState["1D"] === "SELL" && trackerState["4H"] === "SELL" && trackerState["30M"] === "SELL") {
+            // Signal Generation Logic
+            // If indicators are heavily overbought but price is breaking market structure downward:
+            if (data.bias === "SELL" || (cciVal > 100 && stochVal > 80 && data.structureBreak === true)) {
                 trackerState.overallBias = "SELL";
+            } else if (data.bias === "BUY") {
+                trackerState.overallBias = "BUY";
             } else {
                 trackerState.overallBias = "WAIT";
             }
 
             trackerState.lastUpdated = new Date().toISOString();
-
-            return res.status(200).json({
-                status: 'success',
-                state: trackerState
-            });
+            return res.status(200).json({ status: 'success', state: trackerState });
         } catch (error) {
             return res.status(400).json({ status: 'error', message: error.message });
         }
     }
 
-    // GET request returns the current live state to the dashboard UI
     return res.status(200).json(trackerState);
-                }
+}
